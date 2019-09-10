@@ -7,7 +7,7 @@ typedef struct image {
 	int** content;
 } image;
 
-image* readimage(FILE* file, int size);
+image* readImage(FILE* file, int size);
 void printImage(image* img);
 void freeImage(image* img);
 

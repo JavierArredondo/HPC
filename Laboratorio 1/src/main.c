@@ -2,6 +2,7 @@
 # include <stdlib.h>
 # include <ctype.h>
 # include <unistd.h>
+# include "image.c"
 
 int main(int argc, char *argv[])
 {
@@ -68,7 +69,20 @@ int main(int argc, char *argv[])
 	}
 	else if( !(input = fopen(input_raw, "r")) ){
 		printf("File %s not found\n", input_raw);
+		return 1;
 	}
-
+	else if( !(sequential = fopen(output_sequential, "w")) ){
+		printf("File %s cannot be created\n", output_sequential);
+		return 1;
+	}
+	else if( !(simd = fopen(output_simd, "w")) ){
+		printf("File %s cannot be created\n", output_simd);
+		return 1;
+	}
+	image *img = readImage(input, size);
+	printImage(img);
+	image *result = blankImage(size);
+	dilation(img, result);
+	fprintImage(result, sequential);
 	return 0;
 }

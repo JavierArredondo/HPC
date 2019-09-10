@@ -1,8 +1,10 @@
 import numpy as np
 from PIL import Image
-
+im = Image.open('pikachu.png')
 image = np.array(Image.open('pikachu.png').convert('L').resize((256, 256)))
 print(image)
+
+im.show()
 
 th = 128
 image_bin = image > th
