@@ -19,6 +19,6 @@ clean:
 
 run:
 	@ echo "Running..."
-	@ ./bin/main.out -i ./input/pikachu.raw -s output/pikachu_sdilation.raw -p output/pikachu_pdilation.raw -N 256 -D 1
+	@ ./bin/main.out -i ./input/miguel.raw -s output/miguel_sdilation.raw -p output/miguel_pdilation.raw -N 256 -D 1
 
 start: clean main run

@@ -81,8 +81,10 @@ int main(int argc, char *argv[])
 	}
 	image *img = readImage(input, size);
 	printImage(img);
-	image *result = blankImage(size);
+	image *result = blankImage(size, img);
 	dilation(img, result);
+	printf("\n");
+	printImage(result);
 	fprintImage(result, sequential);
 	return 0;
 }
