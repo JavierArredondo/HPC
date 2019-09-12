@@ -19,6 +19,6 @@ clean:
 
 run:
 	@ echo "Running..."
-	@ ./bin/main.out -i ./input/example.raw -s output/example.raw -p output/example.raw -N 256 -D 1
+	@ ./bin/main.out -i ./input/circulos.raw -s output/miguel_seq.raw -p output/miguel_simd.raw -N 256 -D 1
 
 start: clean main run

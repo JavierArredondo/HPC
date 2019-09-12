@@ -63,15 +63,15 @@ int main(int argc, char *argv[])
 		printf("Debug value %d must be 0 or 1\n", debug);
 		return 1;
 	}
-	else if( !(input = fopen(input_raw, "rb")) ){
+	else if( !(input = fopen(input_raw, "r")) ){
 		printf("File %s not found\n", input_raw);
 		return 1;
 	}
-	else if( !(sequential = fopen(output_sequential, "wb")) ){
+	else if( !(sequential = fopen(output_sequential, "w")) ){
 		printf("File %s cannot be created\n", output_sequential);
 		return 1;
 	}
-	else if( !(simd = fopen(output_simd, "wb")) ){
+	else if( !(simd = fopen(output_simd, "w")) ){
 		printf("File %s cannot be created\n", output_simd);
 		return 1;
 	}
@@ -79,12 +79,12 @@ int main(int argc, char *argv[])
 	printImage(img);
 	image *result = blankImage(size, img);
 	printf("\n");
-	printImage(result);	
 	dilation_seq(img, result);
 	printf("\n");
-	printImage(result);
-	fprintImage(result, sequential);
+	//printImage(result);
+	//fprintImage(result, sequential);
 	image *result2 = blankImage(size, img);
 	dilation_simd(img, result2);
+	fprintImage(result2, simd);
 	return 0;
 }
