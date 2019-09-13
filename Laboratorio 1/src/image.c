@@ -14,7 +14,7 @@ image* readImage(FILE* file, int size) {
 		img->content[i] = (float*)malloc(sizeof(float) * size);
 		for (j = 0; j < img->size; ++j){
 			int aux;
-			fread(&aux, sizeof(float), 1, file);
+			fread(&aux, sizeof(int), 1, file);
 			img->content[i][j] = aux ? 1.0 : 0.0;
 		}
 	}
@@ -44,7 +44,7 @@ void printImage(image* img){
 	for(i = 0; i < img->size; i++){
 		for(j = 0; j < img->size; j++){
 			printf("%s", img->content[i][j]? "#" : ".");
-			//printf("%i", img->content[i][j]);
+			//printf("%i ", (int)img->content[i][j]);
 		}
 		printf("\n");
 	}
@@ -54,7 +54,6 @@ void fprintImage(image* img, FILE* file){
 	int i,j;
 	for(i = 0; i < img->size; i++){
 		for(j = 0; j < img->size; j++){
-			printf("%f\n", img->content[i][j]);
 			fwrite(&img->content[i][j], sizeof(int), 1, file);
 		}
 		/*for(j = 0; j < img->size; j++){
@@ -73,15 +72,15 @@ int getUp(int x, int y, image* img){
 }
 
 int getRight(int x, int y, image* img){
-	return y+1 < img->size && img->content[x-1][y] == 1.0 ? 1 : 0;
+	return y+1 < img->size && img->content[x][y+1] == 1.0 ? 1 : 0;
 }
 
 int getDown(int x, int y, image* img){
-	return x+1 < img->size && img->content[x-1][y] == 1.0 ? 1 : 0;
+	return x+1 < img->size && img->content[x+1][y] == 1.0 ? 1 : 0;
 }
 
 int getLeft(int x, int y, image* img){
-	return y-1 >= 0 && img->content[x-1][y] == 1.0 ? 1 : 0;
+	return y-1 >= 0 && img->content[x][y-1] == 1.0 ? 1 : 0;
 }
 
 int getCenter(int x, int y, image* img){
@@ -115,7 +114,7 @@ float* getLeftSIMD(int x, int y, image* img){
 	float* res __attribute__((aligned(16))) = (float*)calloc(4, sizeof(float));
 	int i;
 	for(i = -1; i < 3; i++)
-		res[i] = (y+i >= 0 && y+i < img->size) ? img->content[x][y+i] : -1.0;
+		res[i+1] = (y+i >= 0 && y+i < img->size) ? img->content[x][y+i] : -1.0;
 	return res;
 }
 
@@ -123,7 +122,7 @@ float* getRightSIMD(int x, int y, image* img){
 	float* res __attribute__((aligned(16))) = (float*)calloc(4, sizeof(float));
 	int i;
 	for(i = 1; i < 5; i++)
-		res[i] = (y+i >= 0 && y+i < img->size) ? img->content[x][y+i] : -1.0;
+		res[i-1] = (y+i >= 0 && y+i < img->size) ? img->content[x][y+i] : -1.0;
 	return res;
 }
 
