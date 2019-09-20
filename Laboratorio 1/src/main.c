@@ -76,16 +76,34 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	image *img = readImage(input, size);
-	printImage(img);
+
+	if(debug){
+		printf("\nOriginal image\n");
+		printImage(img);
+		printf("\n");
+	}
+
 	image *result = blankImage(size, img);
-	printf("\n");
 	dilation_seq(img, result);
-	printf("\n");
-	printImage(result);
-	fprintImage(result, sequential);
-	printf("\n");
+	
+	if(debug){
+		printf("Sequential image dilated\n");
+		printImage(result);
+		printf("\n");
+	}
+
+	
 	image *result2 = blankImage(size, img);
 	dilation_simd(img, result2);
-	printImage(result2);
+
+	if(debug){
+		printf("SIMD image dilation\n");
+		printImage(result2);
+		printf("\n");
+	}
+
+
+	fprintImage(result, sequential);
+	fprintImage(result2, simd);
 	return 0;
 }
