@@ -10,15 +10,19 @@ files = os.listdir(work_directory)
 for f in files:
 	filename = f.split(".")[0]
 	bin_output = "images_bin/{}_bin.png".format(filename)
-	raw_output = "images_raw/{}sss.RAW".format(filename)
+	raw_output = "images_raw/{}256x256.raw".format(filename)
 	image = Image.open("{}/{}".format(work_directory, f))
 	image_array = np.array(image.convert('L').resize((size, size)))
 	th = 100
 	image_bin = image_array > th
 	im_bin_128 = (image_array > th) * 255
 	binarize = Image.fromarray(np.uint8(im_bin_128))
-	binarize.show()
-	break
+	#binarize.show()
 	# Display result
-	binarize.save(bin_output, "RAW")
-
+	#binarize.save("example14x14.png")
+	f = open(raw_output, "wb")
+	byte = 0
+	for i in range(size):
+		for j in range(size):
+			byte = int(im_bin_128.item(i, j))
+			f.write(byte.to_bytes(4, byteorder='little'))

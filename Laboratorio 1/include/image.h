@@ -12,7 +12,7 @@
 typedef struct image {
 	int size;
 	char* filename;
-	float** content;
+	int** content;
 } image;
 
 image* readImage(FILE* file, int size);
