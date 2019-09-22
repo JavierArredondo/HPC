@@ -1,9 +1,11 @@
 # include "../include/image.h"
 
-/*TODO
-- validation when memory can't be allocated
-*/
+/*
+Params: - Pointer to file: File to read content. Must be a raw image.
+		- Integer size: Size of side of image. NxN
 
+Return: - Pointer to structure of image.
+*/
 image* readImage(FILE* file, int size) {
 	image *img = (image*)malloc(sizeof(image));
 	img->size = size;
@@ -22,6 +24,12 @@ image* readImage(FILE* file, int size) {
 	return img;
 }
 
+/*
+Params: - Integer size: Size of side of image. NxN
+		- Pointer to structure of image.
+
+Return: - Pointer to structure of blank image.
+*/
 image* blankImage(int size, image* original){
 	image *img = (image*)malloc(sizeof(image));
 	img->size = size;
@@ -32,6 +40,10 @@ image* blankImage(int size, image* original){
 	return img;
 }
 
+/*
+Print image for stdout
+Params: - Pointer to structure of image.
+*/
 void printImage(image* img){
 	int i,j;
 	for(i = 0; i < img->size; i++){
@@ -43,6 +55,10 @@ void printImage(image* img){
 	}
 }
 
+/*
+Write image in a file
+Params: - Pointer to structure of image.
+*/
 void fprintImage(image* img, FILE* file){
 	int i,j;
 	for(i = 0; i < img->size; i++){
@@ -52,8 +68,16 @@ void fprintImage(image* img, FILE* file){
 			fwrite(&aux, sizeof(int), 1, file);
 		}
 	}
+	fclose(file);
 }
 
+/*
+Params: - Position of pixel in x axis
+		- Position of pixel in y axis
+		- Pointer to structure of image.
+
+Return: If position up, down, left, right or center is available to do dilation.
+*/
 int getUp(int x, int y, image* img){
 	return img->content[x-1][y];
 }
@@ -74,6 +98,12 @@ int getCenter(int x, int y, image* img){
 	return img->content[x][y];
 }
 
+
+/*
+Do sequential dilation
+Params: - Pointer to structure of input image.
+		- Pointer to structure of output image.
+*/
 void dilation_seq(image* input, image* result){
 	if(!input && !result)
 		perror("Input image or copy is wrong");
@@ -83,6 +113,11 @@ void dilation_seq(image* input, image* result){
 			result->content[i][j] = getUp(i, j, input) || getRight(i, j, input) || getDown(i, j, input) || getLeft(i, j, input) || getCenter(i, j, input);
 }
 
+/*
+Do SIMD dilation
+Params: - Pointer to structure of input image.
+		- Pointer to structure of output image.
+*/
 void dilation_simd(image* input, image* result){
 	if(!input && !result)
 		perror("Input image or copy is wrong");
@@ -103,5 +138,8 @@ void dilation_simd(image* input, image* result){
 }
 
 void freeImage(image* img){
-	free(img);
+	int i;
+	for (i = 0; i < img->size; ++i)
+		free(img->content[i]);
+	free(img->content);
 }

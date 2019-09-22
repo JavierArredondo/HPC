@@ -1,3 +1,4 @@
+# include <time.h>
 # include "image.c"
 
 int main(int argc, char *argv[])
@@ -55,6 +56,8 @@ int main(int argc, char *argv[])
 	FILE* input;
 	FILE* sequential;
 	FILE* simd;
+	clock_t start, end;
+	double executionSeq, executionSIMD;
 	if(size < 0) {
 		printf("Size %d must be positive\n", size);
 		return 1;
@@ -84,8 +87,11 @@ int main(int argc, char *argv[])
 	}
 
 	image *result = blankImage(size, img);
+	start = clock();
 	dilation_seq(img, result);
-	
+	end = clock();
+
+	executionSeq = (double)(end - start);
 	if(debug){
 		printf("Sequential image dilated\n");
 		printImage(result);
@@ -94,10 +100,13 @@ int main(int argc, char *argv[])
 
 	
 	image *result2 = blankImage(size, img);
+	start = clock();
 	dilation_simd(img, result2);
+	end = clock();
 
+	executionSIMD = (double)(end - start);
 	if(debug){
-		printf("SIMD image dilation\n");
+		printf("SIMD image dilated\n");
 		printImage(result2);
 		printf("\n");
 	}
@@ -109,5 +118,8 @@ int main(int argc, char *argv[])
 	freeImage(result2);
 	freeImage(result);
 	freeImage(img);
+
+	printf("- Sequential image dilation: \n\t%10f [ticks]\n\t%10f [sec]\n\n", executionSeq, executionSeq/CLOCKS_PER_SEC);
+	printf("- SIMD image dilation:  \n\t%10f [ticks]\n\t%10f [sec]\n", executionSIMD, executionSIMD/CLOCKS_PER_SEC);
 	return 0;
 }
