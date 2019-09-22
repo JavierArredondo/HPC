@@ -19,6 +19,6 @@ clean:
 
 run:
 	@ echo "Running..."
-	@ ./bin/main.out -i ./input/pikachu256x256.raw -s output/pikachu_seq.raw -p output/pikachu_simd.raw -N 256 -D 0
+	@ ./bin/main.out -i ./input/lena256x256.raw -s output/lena_seq.raw -p output/lena_simd.raw -N 256 -D 0
 
 start: clean main run

@@ -98,7 +98,7 @@ void dilation_simd(image* input, image* result){
 		}
 	}
 	for(i = 1; i < input->size-1; i++)
-		for(j = input->size-residue-1; j < input->size-1; j++)
+		for(j = input->size-residue-4; j < input->size-1; j++)
 			result->content[i][j] = getUp(i, j, input) || getRight(i, j, input) || getDown(i, j, input) || getLeft(i, j, input) || getCenter(i, j, input);
 }
 
