@@ -42,6 +42,7 @@ make start
 Entrada de ejemplo 14x14 pixeles
 
 ![entrada14](https://raw.githubusercontent.com/JavierArredondo/HPC/master/Scripts/images_bin/example14x14.png?token=AEVXHRHT7WHWVVXZTI5PPS25SBQME)
+
 Salida de ejemplo 14x14 pixeles
 
 ![salida14](https://raw.githubusercontent.com/JavierArredondo/HPC/master/Scripts/images_dilated/example14x14_seq_dilated.png?token=AEVXHRHCP3HDGAVKOMZ7PAK5SBQHU)
