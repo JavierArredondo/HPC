@@ -105,5 +105,9 @@ int main(int argc, char *argv[])
 
 	fprintImage(result, sequential);
 	fprintImage(result2, simd);
+
+	freeImage(result2);
+	freeImage(result);
+	freeImage(img);
 	return 0;
 }

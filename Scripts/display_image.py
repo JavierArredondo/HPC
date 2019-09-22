@@ -1,25 +1,25 @@
 import sys
 import os
 import numpy as np
-import pandas as pd
 from PIL import Image
 
-filename = sys.argv[1]
-output = filename.split(".")[0]#filename.split("/")[-1].split(".")[0]
-#df = pd.read_csv(filename, sep = " ", header = None)
+def raw_to_png(input_bytes):
+	input_bytes = input_bytes.read()
+	image_array = np.array([int(input_bytes[byte]) for byte in range(0, len(input_bytes), 4)])
+	size = int(len(image_array)**(1/2))
+	image_matrix = image_array.reshape(size, size)
+	image = np.array(image_matrix)#.transpose()
+	image = Image.fromarray(np.uint8(image))
+	image = image.resize((512, 512))	
+	return image
 
-file = open(filename, "rb").read()
-print(file)
-print("kdsakl\n")
-print(len(file))
-out_hex = [int('{:02X}'.format(b), 16) for b in file]
-
-n = int(len(out_hex) ** (1/2))
-
-out_hex = [out_hex[i::n] for i in range(n)]
-
-image = np.array(out_hex).transpose()
-
-a = Image.fromarray(np.uint8(image))
-#a.save("images_dilated/{}.png".format(output))
-a.show()
+work_directory = sys.argv[1]
+files = os.listdir(work_directory)
+for file in files:
+	filename = file.split(".")[0]
+	output_filename = "images_dilated/{}_dilated.png".format(filename)
+	file_tmp = open("{}/{}".format(work_directory, file), "rb")
+	image = raw_to_png(file_tmp)
+	file_tmp.close()
+	image.save(output_filename)
+#image.save("images_dilated/{}.png".format(output))

@@ -16,13 +16,15 @@ for f in files:
 	th = 100
 	image_bin = image_array > th
 	im_bin_128 = (image_array > th) * 255
+	im_bin_128[im_bin_128 == 0] = 1
+	im_bin_128[im_bin_128 == 255] = 0
+	im_bin_128[im_bin_128 == 1] = 255
 	binarize = Image.fromarray(np.uint8(im_bin_128))
-	#binarize.show()
-	# Display result
-	#binarize.save("example14x14.png")
+	binarize.save("{}/{}_bin.png".format("images_bin", filename))
 	f = open(raw_output, "wb")
 	byte = 0
 	for i in range(size):
 		for j in range(size):
 			byte = int(im_bin_128.item(i, j))
 			f.write(byte.to_bytes(4, byteorder='little'))
+	f.close()
