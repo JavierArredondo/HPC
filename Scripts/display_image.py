@@ -10,7 +10,7 @@ def raw_to_png(input_bytes):
 	image_matrix = image_array.reshape(size, size)
 	image = np.array(image_matrix)#.transpose()
 	image = Image.fromarray(np.uint8(image))
-	image = image.resize((512, 512))	
+	image = image.resize((512, 512))
 	return image
 
 work_directory = sys.argv[1]

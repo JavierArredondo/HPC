@@ -19,13 +19,13 @@ im_bin_128 = np.matrix([
 	[0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 	[0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 	]) * 255
-#binarize = Image.fromarray(np.uint8(im_bin_128))
+binarize = Image.fromarray(np.uint8(im_bin_128))
 #binarize.show()
-
-#binarize.save("example14x14.png")
-f = open(raw_output, "wb")
-byte = 0
-for i in range(size):
-	for j in range(size):
-		byte = int(im_bin_128.item(i, j))
-		f.write(byte.to_bytes(4, byteorder='little'))
+binarize = binarize.resize((512, 512))
+binarize.save("example14x14.png")
+# f = open(raw_output, "wb")
+# byte = 0
+# for i in range(size):
+# 	for j in range(size):
+# 		byte = int(im_bin_128.item(i, j))
+# 		f.write(byte.to_bytes(4, byteorder='little'))

@@ -20,6 +20,7 @@ for f in files:
 	im_bin_128[im_bin_128 == 255] = 0
 	im_bin_128[im_bin_128 == 1] = 255
 	binarize = Image.fromarray(np.uint8(im_bin_128))
+	binarize = binarize.resize((512, 512))
 	binarize.save("{}/{}_bin.png".format("images_bin", filename))
 	f = open(raw_output, "wb")
 	byte = 0
