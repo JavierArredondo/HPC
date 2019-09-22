@@ -8,7 +8,7 @@ Es una técnica de procesamiento de imágenes correspondiente a los operadores m
 ## Implementación
 El programa se desarrolló en C y básicamente la implementación consto en utilizar la siguiente formula para aplicar el elemento de estructuración expuesto anteriormente.
 
-$$ C = A\oplus B$$
+<a href="https://www.codecogs.com/eqnedit.php?latex=C&space;=&space;A\oplus&space;B" target="_blank"><img src="https://latex.codecogs.com/gif.latex?C&space;=&space;A\oplus&space;B" title="C = A\oplus B" /></a>
 
 En otras palabras, se aplico el operador lógico `or` en cada una de las direcciones del kernel (desde el centro). Por lo cual si había a lo menos un `1` en el kernel, se marcaba el centro.
 
