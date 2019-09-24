@@ -34,9 +34,19 @@ image* blankImage(int size, image* original){
 	image *img = (image*)malloc(sizeof(image));
 	img->size = size;
 	img->content = (int**)calloc(size, sizeof(int*));
-	int i;
-	for (i = 0; i < img->size; i++)
+	int i, j;
+	for (i = 0; i < img->size; i++){
+		if(i == 0 || i == img->size-1){
 			img->content[i] = (int*)calloc(size, sizeof(int));
+			for(j = 0; j < img->size-1; j++)
+				img->content[i][j] = original->content[i][j];
+		}
+		else{
+			img->content[i] = (int*)calloc(size, sizeof(int));
+			img->content[i][0] = original->content[i][0];
+			img->content[i][img->size-1] = original->content[i][img->size-1];
+		}
+	}
 	return img;
 }
 

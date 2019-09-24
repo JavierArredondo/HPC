@@ -19,6 +19,6 @@ clean:
 
 run:
 	@ echo "Running...\n"
-	@ ./bin/dilation -i ./input/example14x14.raw -s output/example_seq.raw -p output/example_simd.raw -N 14 -D 1
+	@ ./bin/dilation -i ./input/pikachu256x256.raw -s output/pikachu_seq.raw -p output/pikachu_simd.raw -N 256 -D 1
 
 start: clean compilation run
