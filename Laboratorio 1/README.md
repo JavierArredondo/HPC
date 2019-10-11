@@ -28,7 +28,7 @@ Ejecución, donde las distintas banderas indican:
 - -D Flag para debugear (0 no muestra nada por pantalla, 1 muestra output por pantalla)
 
 ```
-main.out -i ./input/lena256x256.raw -s output/lena_seq.raw -p output/lena_simd.raw -N 256 -D 0
+./dilation.out -i ./input/lena256x256.raw -s output/lena_seq.raw -p output/lena_simd.raw -N 256 -D 0
 ```
 
 Compilar y ejecutar desde makefile
