@@ -2,17 +2,10 @@ INC_DIRS = -Iinclude
 
 CFLAGS = -c
 
-compilation: obj/mandelbrot.o obj/mandelbrotp.o
-	@ gcc obj/mandelbrot.o -o bin/mandelbrot -lm
-	@ gcc obj/mandelbrotp.o -o bin/mandelbrotp -lm -fopenmp
+compilation:
+	@ gcc src/mandelbrot.c -o bin/mandelbrot -lm
+	@ gcc src/mandelbrotp.c -o bin/mandelbrotp -fopenmp -lm
 	@ echo "Compilation."
-
-obj/mandelbrot.o: src/mandelbrot.c
-	@ gcc  $(CFLAGS) $(INC_DIRS) src/mandelbrot.c -o obj/mandelbrot.o
-
-obj/mandelbrotp.o: src/mandelbrotp.c
-	@ gcc  $(CFLAGS) $(INC_DIRS) src/mandelbrotp.c -o obj/mandelbrotp.o
-
 
 clean:
 	@ echo "Clean."
@@ -26,8 +19,12 @@ run:
 
 runp:
 	@ echo "Running...\n"
-	@ ./bin/mandelbrotp -i 500 -a -1 -b -1 -c 1 -d 1 -s 0.001 -f output/salida.raw -t 24
+	@ ./bin/mandelbrotp -i 500 -a -2 -b -1 -c 2 -d 1 -s 0.01 -f output/salida.raw -t 12
+
+runp2:
+	@ echo "Running...\n"
+	@ ./bin/mandelbrotp -i 500 -a -0.748766713922161 -b 0.123640844894862 -c -0.748766707771757 -d 0.123640851045266 -s 1e-11 -f output/salida.raw -t 12
 
 start: clean compilation run
 
-startp: clean compilation runp
+startp: clean compilation runp2
