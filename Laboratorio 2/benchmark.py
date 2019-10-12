@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import datetime
 
 THREADS = 24
 verbose = True
@@ -51,6 +52,6 @@ speedUp = seqTime / np.asarray(parTimes)
 fig = plt.figure()
 plt.plot(threads, speedUp)
 fig.suptitle('Speed Up')
-plt.xlabel('Número de hebras')
+plt.xlabel('Número de tareas')
 plt.ylabel('S(n)')
-fig.savefig('test{}.jpg'.format())
+fig.savefig('test{}.jpg'.format(datetime.datetime.now()))
