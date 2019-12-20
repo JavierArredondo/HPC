@@ -27,4 +27,4 @@ runp2:
 
 start: clean compilation run
 
-startp: clean compilation runp2
+startp: clean compilation runp

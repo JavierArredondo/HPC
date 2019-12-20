@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import datetime
 
-THREADS = 24
+THREADS = 100
 verbose = True
 
 
@@ -40,8 +40,8 @@ def getMeanTime(tries):
 	return times
 
 
-seqTime = getSeqTime(5)
-parTimes = getMeanTime(5)
+seqTime = getSeqTime(1)
+parTimes = getMeanTime(1)
 
 
 
