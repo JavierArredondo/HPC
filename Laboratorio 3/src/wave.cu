@@ -8,6 +8,9 @@
 # define dt 0.1
 # define dd 2.0
 
+float C1 = pow(cc, 2) * pow(dt/dd, 2) * 0.5;
+float C2 = pow(cc, 2) * pow(dt/dd, 2);
+
 float* initial_condition(int N) {
 	float* H = (float*)malloc(sizeof(float) * N * N);
 	int i, j;
@@ -25,60 +28,62 @@ float* initial_condition(int N) {
 void show_image(int N, float* image) {
 	for(int i = 0; i < N; ++i) {
 		for(int j = 0; j < N; ++j) {
-			printf("%0.1f ", image[i*N + j]);
+			if(image[i*N + j] != 0) {
+				printf("%f \n", image[i*N + j]);
+			}
 		}
-		printf("\n");
 	}
 }
 
-__global__ void schroedinger(float* data, int N, int T, int t) {
-	__shared__ float* H_0, H_1, H_2;
-	int size = N*N;
-	__syncthreads();
-	int lower = (threadIdx.x * N + threadIdx.y * blockDim.y * N);
-	int upper = (threadIdx.x * N + threadIdx.y * blockDim.y * N) + N;
-	printf("(%i, %i) _%i %i _=> [%i - %i]\n", threadIdx.x, threadIdx.y, blockDim.x, blockDim.y, lower, upper);
 
+void write_image(int N, float* grid, char* filename) {
 
-	/*int iteration, i, j;
-	for(iteration = 0; iteration < t; ++iteration) {
-		
-		if(t == 0){
-			for(i = N*threadIdx.x + threadIdx.y; i < N; ++i) {
-				for(j = 0; j < N; ++j) {
-					
-				}
-			}
+	FILE* file = fopen(filename, "wb");
+	if(!file)
+		return;
+	fwrite(grid, N*N, sizeof(float), file);
+	fclose(file);
+}
+
+__global__ void schroedinger(float* data, float* data1, float* data2, float* response, int N, int T, int t, float C1, float C2) {
+	__shared__ float* H[3];
+	int i, j;
+ 	/*First step: Sort precedence of Hx in function of t (iteration)*/
+	if(threadIdx.x == 0 && threadIdx.y == 0) {
+		int shift = t%3;
+		if(shift == 0) {
+			H[0] = data;
+			H[1] = data1;
+			H[2] = data2;
 		}
-		else if(t == 1) {
-
+		else if(shift == 1) {
+			H[0] = data2;
+			H[1] = data;
+			H[2] = data1;
 		}
 		else {
-
+			H[0] = data1;
+			H[1] = data2;
+			H[2] = data;
 		}
-	}*/
-
-
-
-
-
-	//int id = blockIdx.x*blockDim.x + threadIdx.x;
-	/*int i, j;
-	for(i = 0; i < N-1; i=i+blockDim.x) {
-		for(j = 0; j < N-1; j=j+blockDim.y) {
-			/* code */
-		//}
-	//}
-
+	}
+	//printf("(%i, %i)  => [%i - %i]\n", threadIdx.x, threadIdx.y, threadIdx.x * blockDim.x, threadIdx.y * blockDim.y);
 	__syncthreads();
 
-
-	/*float aux;
-	aux = pow(cc, 2) * pow(dt/dd, 2) * (H_1[(i+1)*N + j] + H_1[(i-1)*N + j] + H_1[i*N + (j+1)] + H_1[i*N + (j-1)] - 4*H_1[i*N + j]);
-	if(t == 1)
-		H[i*N + j] = H_1[i*N + j] + 0.5 * aux;
-	else
-		H[i*N + j] = 2 * H_1[i*N + j] - H_2[i*N + j] + aux;*/
+	/*Second step: Compute Ht value*/
+	for(i = threadIdx.x*blockDim.x ; i < threadIdx.x*blockDim.x + blockDim.x; ++i) {
+		for(j = threadIdx.y*blockDim.y ; j < threadIdx.y*blockDim.y + blockDim.y; ++j) {
+			if(i > 0 && i < N-1 && j > 0 && j < N-1) {
+				float aux = H[1][(i+1)*N + j] + H[1][(i-1)*N + j] + H[1][i*N + (j+1)] + H[1][i*N + (j-1)] - 4*H[1][i*N + j];
+				if(t == 1)
+					H[0][i*N + j] = H[1][i*N + j] + C1 * aux;
+				else
+					H[0][i*N + j] = 2*H[1][i*N + j] - H[2][i*N + j] + C2 * aux;
+				response[i*N + j] = H[0][i*N + j];
+			}
+		}
+	}
+	__syncthreads();
 }
 
 __host__ int main(int argc, char *argv[]) {
@@ -129,33 +134,45 @@ __host__ int main(int argc, char *argv[]) {
 		}
 
 	printf("- N: %i\n- x: %d\n- y: %d\n- T: %d\n- f: %s\n- t: %d\n", N, x, y, T, f, t);
+	printf("- C1: %f\n- C2: %f\n", C1, C2);
 
 
 	int size = N*N;
 	/* Vectors in host  */
-	float* H_0h;
-
+	float* H_h;
 
 	/* Vectors in device */
 	float* H_0d;
-
+	float* H_1d;
+	float* H_2d;
+	float* H_rd;
 
 	/* Allocate memory for each vector in host */
-	H_0h = initial_condition(N);
-
+	H_h = initial_condition(N);
 	/* Allocate memory for each vector in device */
 	cudaMalloc(&H_0d, size * sizeof(float));
+	cudaMalloc(&H_1d, size * sizeof(float));
+	cudaMalloc(&H_2d, size * sizeof(float));
+	cudaMalloc(&H_rd, size * sizeof(float));
 
 	/* Transfer values from host to device */
-    cudaMemcpy(H_0d, H_0h, size * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(H_0d, H_h, size * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(H_1d, H_h, size * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(H_2d, H_h, size * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(H_rd, H_h, size * sizeof(float), cudaMemcpyHostToDevice);
+
 
     /* Define grid size and block size for device */
 	dim3 dimBlock(x, y);
 	dim3 dimGrid(1, 1);
 
-	schroedinger<<<dimGrid, dimBlock>>>(H_0d, N, T, t);
-	cudaDeviceSynchronize();
-	cudaMemcpy(H_0h, H_0d, size * sizeof(float), cudaMemcpyDeviceToHost);
+	for(int iteration = 1; iteration < t; ++iteration) {
+		schroedinger<<<dimGrid, dimBlock>>>(H_0d, H_1d, H_2d, H_rd, N, T, iteration, C1, C2);
+		cudaDeviceSynchronize();
+	}
 
+	cudaMemcpy(H_h, H_rd, size * sizeof(float), cudaMemcpyDeviceToHost);
+
+	write_image(N, H_h, f);
 	return 0;
 }
