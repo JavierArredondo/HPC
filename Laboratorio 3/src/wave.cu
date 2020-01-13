@@ -3,7 +3,9 @@
 # include <math.h>
 # include <ctype.h>
 # include <unistd.h>
+# include <string.h>
 # include <sys/time.h>
+
 # define cc 1.0
 # define dt 0.1
 # define dd 2.0
@@ -33,6 +35,8 @@ void write_image(int N, float* grid, char* filename) {
 
 __global__ void schroedinger(float* data, float* data1, float* data2, float* response, int N, int T, int t, float C1, float C2) {
 	int i, j;
+
+
 	for(i = threadIdx.x*blockDim.x ; i < threadIdx.x*blockDim.x + blockDim.x; ++i) {
 		for(j = threadIdx.y*blockDim.y ; j < threadIdx.y*blockDim.y + blockDim.y; ++j) {
 			if(i > 0 && i < N-1 && j > 0 && j < N-1) {
@@ -48,6 +52,14 @@ __global__ void schroedinger(float* data, float* data1, float* data2, float* res
 	__syncthreads();
 }
 
+/*Got from https://gist.github.com/sevko/d23646ba07c77c15fde9*/
+long getMicrotime(){
+	struct timeval currentTime;
+	gettimeofday(&currentTime, NULL);
+	return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
+}
+
+
 __host__ int main(int argc, char *argv[]) {
 	/*Parameters of the program: 
 	-N    grid size
@@ -60,6 +72,7 @@ __host__ int main(int argc, char *argv[]) {
 
 	printf("Parameters %i\n", argc);
 	char* f = (char*) malloc(sizeof(char) * 50);
+	char* ff = (char*) malloc(sizeof(char) * 50);
 	int N, x, y, T, t, c;
 
 	opterr = 0;
@@ -79,6 +92,9 @@ __host__ int main(int argc, char *argv[]) {
 				break;
 			case 'f':
 				sscanf(optarg, "%s", f);
+				strcat(ff, f);
+				strcat(ff, "_2.raw");
+				strcat(f, "_1.raw");
 				break;
 			case 't':
 				sscanf(optarg, "%d", &t);
@@ -123,20 +139,24 @@ __host__ int main(int argc, char *argv[]) {
     cudaMemcpy(H_2d, H_h, size * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(H_rd, H_h, size * sizeof(float), cudaMemcpyHostToDevice);
 
-
     /* Define grid size and block size for device */
 	dim3 dimBlock(x, y);
 	dim3 dimGrid(1, 1);
 
-	for(int iteration = 1; iteration < t; ++iteration) {
+	printf("%ld\n", getMicrotime());
+
+	for(int iteration = 1; iteration <= T; ++iteration) {
 		schroedinger<<<dimGrid, dimBlock>>>(H_0d, H_1d, H_2d, H_rd, N, T, iteration, C1, C2);
 		cudaDeviceSynchronize();
 		cudaMemcpy(H_2d, H_1d, N * N * sizeof(float), cudaMemcpyDeviceToDevice);
 		cudaMemcpy(H_1d, H_0d, N * N * sizeof(float), cudaMemcpyDeviceToDevice);
+		if(iteration == t) {
+			cudaMemcpy(H_h, H_rd, size * sizeof(float), cudaMemcpyDeviceToHost);		
+			write_image(N, H_h, ff);
+		}
 	}
-
+	printf("%ld\n", getMicrotime());
 	cudaMemcpy(H_h, H_rd, size * sizeof(float), cudaMemcpyDeviceToHost);
-
 	write_image(N, H_h, f);
 	return 0;
 }
